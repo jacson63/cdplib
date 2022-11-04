@@ -1,4 +1,4 @@
-package cdplib.websocket;
+package cdplib.cdp;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

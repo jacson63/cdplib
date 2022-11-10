@@ -9,29 +9,34 @@ public class CdpController {
 		ws = new WebSocketSync(debuggerUrl);
 	}
 
-	public void sendJavascript(String javascript) {
-		final String FORMAT = "{\"id\": 1,\"method\": \"Runtime.evaluate\",\"params\": {\"expression\": \"%s\"}}";
-
+	public String send(String message) {
+		String res = "";
 		try {
-			ws.sendSync(String.format(FORMAT, javascript));
+			res = ws.sendSync(message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		return res;
 	}
 
-	public void input(String selector, String value) {
+	public String sendJavascript(String javascript) {
+		final String FORMAT = "{\"id\": 1,\"method\": \"Runtime.evaluate\",\"params\": {\"expression\": \"%s\"}}";
+		return this.send(String.format(FORMAT, javascript));
+	}
+
+	public String input(String selector, String value) {
 		final String FORMAT  = "document.querySelector('%s').value='%s'";
-		this.sendJavascript(String.format(FORMAT, selector, value));
-
+		return this.sendJavascript(String.format(FORMAT, selector, value));
 	}
 
-	public void select(String selector, String value) {
+	public String select(String selector, String value) {
 		final String FORMAT  = "document.querySelector('%s').click()";
-		this.sendJavascript(String.format(FORMAT, selector));
+		return this.sendJavascript(String.format(FORMAT, selector));
 	}
 
-	public void click(String selector) {
+	public String click(String selector) {
 		final String FORMAT  = "document.querySelector('%s').click()";
-		this.sendJavascript(String.format(FORMAT, selector));
+		return this.sendJavascript(String.format(FORMAT, selector));
 	}
 }

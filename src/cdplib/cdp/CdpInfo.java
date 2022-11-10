@@ -48,8 +48,8 @@ public class CdpInfo {
 
 				if ("page".equals(tmp.get("type").toString().replace("\"", ""))) {
 					// 最初に取れたデータを保持
-					this.title = tmp.get("title").toString();
-					this.webSocketDebuggerUrl = tmp.get("webSocketDebuggerUrl").toString();
+					this.title = tmp.get("title").toString().replace("\"", "");
+					this.webSocketDebuggerUrl = tmp.get("webSocketDebuggerUrl").toString().replace("\"", "");
 
 					break;
 				}

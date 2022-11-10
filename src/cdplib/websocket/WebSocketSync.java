@@ -10,6 +10,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import debug.CLogger;
+
 public class WebSocketSync {
 	private WebSocket ws;
 	private String responceBuf;
@@ -66,6 +68,7 @@ public class WebSocketSync {
 	 * @throws InterruptedException
 	 */
 	public String sendSync(String sendStr) throws TimeoutException, InterruptedException {
+		CLogger.finer("sendSync send:" + sendStr);
 		ws.sendText(sendStr, true);
 
 		execFlg = true;
@@ -83,6 +86,7 @@ public class WebSocketSync {
 			throw new TimeoutException();
 		}
 
+		CLogger.finer("sendSync res:" + this.responceBuf);
 		return this.responceBuf;
 	}
 

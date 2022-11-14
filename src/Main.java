@@ -68,6 +68,11 @@ public class Main {
 			controller.click(params[1]);
 		}
 
+		// upload [selector] [filePath]
+		if (text.startsWith("upload ")) {
+			controller.fileUpload(params[1], params[2]);
+		}
+
 		return false;
 	}
 }

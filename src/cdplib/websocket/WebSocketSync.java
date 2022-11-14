@@ -41,9 +41,12 @@ public class WebSocketSync {
 			}
 			@Override
 			public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+				CLogger.finest("ws recv(" + last + "):" + data.toString());
 				if(last) {
 					parts.add(data);
 					responceBuf = String.join("", parts);
+
+					parts = new ArrayList<CharSequence>();
 					execFlg = false;
 				} else {
 					parts.add(data);

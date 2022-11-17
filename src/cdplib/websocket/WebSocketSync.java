@@ -48,6 +48,7 @@ public class WebSocketSync {
 
 					parts = new ArrayList<CharSequence>();
 					execFlg = false;
+					webSocket.request(10);
 				} else {
 					parts.add(data);
 				}

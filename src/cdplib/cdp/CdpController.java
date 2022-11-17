@@ -1,5 +1,7 @@
 package cdplib.cdp;
 
+import java.util.concurrent.TimeoutException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,6 +13,7 @@ import cdplib.websocket.WebSocketSync;
 
 public class CdpController {
 	WebSocketSync ws;
+	final int SLEEP_ONE_MILTIME = 100;
 
 	public CdpController(String debuggerUrl) {
 		ws = new WebSocketSync(debuggerUrl);
@@ -181,5 +184,144 @@ public class CdpController {
 
 		root.set("params", params);
 		return this.sendJsonNode(mapper, root);
+	}
+
+	/**
+	 * selectorの要素が使えるようになるまで待つ
+	 * @param selector
+	 * @param waitingMilsec
+	 * @throws TimeoutException
+	 */
+	public void waitForSelector(String selector, int waitingMilsec) throws TimeoutException {
+		int cnt = 0;
+		int maxloopCnt = waitingMilsec / SLEEP_ONE_MILTIME;
+		try {
+			// nodeIdが取得できるまでループ
+			for(; cnt < maxloopCnt; cnt++) {
+				int nodeId = this.getNodeId(selector);
+				if (nodeId > 0) {
+					break;
+				}
+				waitForTimeout();
+			}
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		if (cnt >= maxloopCnt) {
+			throw new TimeoutException();
+		}
+
+		return;
+	}
+
+
+	private String getUrl() {
+		String retJson = this.sendJavascript("location.href");
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node;
+		try {
+			node = mapper.readTree(retJson);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return "";
+		}
+		return node.get("result").get("result").get("value").toString().replace("\"", "");
+	}
+
+	private interface IWaitForNavigationChk {
+		boolean isStartWithUrl(String baseUrl, String startWithUrl);
+		boolean isEndWithUrl(String baseUrl, String endWithUrl);
+	}
+
+	/**
+	 * urlで指定したページに移動するまで待つ(共通処理)
+	 * @param chk urlチェック用メソッドのインタフェース
+	 * @param startWithUrl
+	 * @param endWithUrl
+	 * @param waitingMilsec
+	 * @throws TimeoutException
+	 */
+	private void _waitForNavigation(IWaitForNavigationChk chk, String startWithUrl, String endWithUrl, int waitingMilsec) throws TimeoutException {
+		//現在のurl取得
+		int cnt = 0;
+		int maxloopCnt = waitingMilsec / SLEEP_ONE_MILTIME;
+		for (; cnt < maxloopCnt; cnt++) {
+			String retUrl = getUrl();
+			if (chk.isStartWithUrl(retUrl, startWithUrl)
+					&& chk.isEndWithUrl(retUrl, endWithUrl)) {
+				break;
+			}
+			waitForTimeout();
+		}
+
+		if (cnt >= maxloopCnt) {
+			throw new TimeoutException();
+		}
+
+		return;
+	}
+
+	/**
+	 * urlで指定したページに移動するまで待つ(後方一致)
+	 * @param endWithUrl
+	 * @param waitingMilsec
+	 * @throws TimeoutException
+	 */
+	public void waitForNavigationEndWith(String endWithUrl, int waitingMilsec) throws TimeoutException {
+		IWaitForNavigationChk chk = new IWaitForNavigationChk() {
+			@Override
+			public boolean isStartWithUrl(String baseUrl, String startWithUrl) {
+				return true;
+			}
+
+			@Override
+			public boolean isEndWithUrl(String baseUrl, String endWithUrl) {
+				return baseUrl.endsWith(endWithUrl);
+			}
+		};
+		this._waitForNavigation(chk, "", endWithUrl, waitingMilsec);
+	}
+
+	/**
+	 * urlで指定したページに移動するまで待つ
+	 * @param startWithUrl
+	 * @param endWithUrl
+	 * @param waitingMilsec
+	 * @throws TimeoutException
+	 */
+	public void waitForNavigation(String startWithUrl, String endWithUrl, int waitingMilsec) throws TimeoutException {
+		IWaitForNavigationChk chk = new IWaitForNavigationChk() {
+			@Override
+			public boolean isStartWithUrl(String baseUrl, String startWithUrl) {
+				return baseUrl.startsWith(startWithUrl);
+			}
+
+			@Override
+			public boolean isEndWithUrl(String baseUrl, String endWithUrl) {
+				return baseUrl.endsWith(endWithUrl);
+			}
+		};
+		this._waitForNavigation(chk, startWithUrl, endWithUrl, waitingMilsec);
+	}
+
+	/**
+	 * wait(規定秒待ち)
+	 */
+	public void waitForTimeout() {
+		waitForTimeout(SLEEP_ONE_MILTIME);
+	}
+
+	/**
+	 * wait
+	 * @param milsec
+	 */
+	public void waitForTimeout(long milsec) {
+		try {
+			Thread.sleep(milsec);
+		} catch (InterruptedException e) {
+			//none
+		}
 	}
 }

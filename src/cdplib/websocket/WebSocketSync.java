@@ -94,4 +94,8 @@ public class WebSocketSync {
 		return this.responceBuf;
 	}
 
+	public void disconnect() {
+		CLogger.finer("disconnect:" + ws.toString());
+		ws.sendClose(WebSocket.NORMAL_CLOSURE, "normal disconnect");
+	}
 }

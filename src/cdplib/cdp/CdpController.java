@@ -1,5 +1,6 @@
 package cdplib.cdp;
 
+import java.net.MalformedURLException;
 import java.util.concurrent.TimeoutException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import cdplib.websocket.WebSocketSync;
+import debug.CLogger;
 
 public class CdpController {
 	WebSocketSync ws;
@@ -19,6 +21,27 @@ public class CdpController {
 		ws = new WebSocketSync(debuggerUrl);
 	}
 
+	public CdpController() {
+		this._currentConnect();
+	}
+
+	/**
+	 * 現在開いているタブのデバッグポートに接続する
+	 */
+	private void _currentConnect() {
+		CdpInfo info;
+		try {
+			// currentの情報取得
+			info = new CdpInfo();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return;
+		}
+		CLogger.finest("ws info-------------------------");
+		CLogger.finest("window title: " + info.getTitle());
+		CLogger.finest("debugger url: " + info.getWebSocketDebuggerUrl());
+		ws = new WebSocketSync(info.getWebSocketDebuggerUrl());
+	}
 	/**
 	 * websocket送信
 	 * @param message
@@ -287,6 +310,27 @@ public class CdpController {
 	/**
 	 * urlで指定したページに移動するまで待つ
 	 * @param startWithUrl
+	 * @param waitingMilsec
+	 * @throws TimeoutException
+	 */
+	public void waitForNavigation(String startWithUrl, int waitingMilsec) throws TimeoutException {
+		IWaitForNavigationChk chk = new IWaitForNavigationChk() {
+			@Override
+			public boolean isStartWithUrl(String baseUrl, String startWithUrl) {
+				return baseUrl.startsWith(startWithUrl);
+			}
+
+			@Override
+			public boolean isEndWithUrl(String baseUrl, String endWithUrl) {
+				return true;
+			}
+		};
+		this._waitForNavigation(chk, startWithUrl, "", waitingMilsec);
+	}
+
+	/**
+	 * urlで指定したページに移動するまで待つ
+	 * @param startWithUrl
 	 * @param endWithUrl
 	 * @param waitingMilsec
 	 * @throws TimeoutException
@@ -323,5 +367,27 @@ public class CdpController {
 		} catch (InterruptedException e) {
 			//none
 		}
+	}
+
+	/**
+	 *
+	 * @param url
+	 * @return
+	 */
+	public void windowOpen(String url) {
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode root = mapper.createObjectNode();
+		root.put("id", 1);
+		root.put("method", "Target.createTarget");
+
+		ObjectNode params = mapper.createObjectNode();
+		params.put("url", url);
+
+		root.set("params", params);
+		this.sendJsonNode(mapper, root);
+
+		// wsの向き先を変える
+		ws.disconnect();
+		this._currentConnect();
 	}
 }

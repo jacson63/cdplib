@@ -1,28 +1,27 @@
-import java.net.MalformedURLException;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
 
 import cdplib.cdp.CdpController;
-import cdplib.cdp.CdpInfo;
 
 public class Main {
 	static Scanner scanner = new Scanner(System.in);
 	static CdpController controller;
 
 	public static void main(String[] args) {
-		CdpInfo info;
-		try {
-			// currentの情報取得
-			info = new CdpInfo();
-		} catch (MalformedURLException e) {
-			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
-			return;
-		}
-
-		System.out.println(info.getTitle());
-		System.out.println(info.getWebSocketDebuggerUrl());
-		controller = new CdpController(info.getWebSocketDebuggerUrl());
+//		CdpInfo info;
+//		try {
+//			// currentの情報取得
+//			info = new CdpInfo();
+//		} catch (MalformedURLException e) {
+//			// TODO 自動生成された catch ブロック
+//			e.printStackTrace();
+//			return;
+//		}
+//
+//		System.out.println(info.getTitle());
+//		System.out.println(info.getWebSocketDebuggerUrl());
+//		controller = new CdpController(info.getWebSocketDebuggerUrl());
+		controller = new CdpController();
 
 		scan();
 	}
@@ -131,6 +130,21 @@ public class Main {
 		// waitForTimeout [waitmilsec]
 		if (text.startsWith("waitForTimeout ")) {
 			controller.waitForTimeout(Integer.parseInt(params[1]));
+			return false;
+		}
+
+		/**
+		 *	その他
+		 */
+		// windowOpen [url]
+		if (text.startsWith("windowOpen ")) {
+			controller.windowOpen(params[1]);
+			return false;
+		}
+
+		// getVersion
+		if (text.startsWith("getVersion ")) {
+			controller.getVersion();
 			return false;
 		}
 

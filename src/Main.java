@@ -2,7 +2,12 @@ import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
 
 import cdplib.cdp.CdpController;
+import cdplib.cdp.CdpControllerImpl;
 
+/**
+ * コマンドライン実行用のMainソース
+ *
+ */
 public class Main {
 	static Scanner scanner = new Scanner(System.in);
 	static CdpController controller;
@@ -21,7 +26,7 @@ public class Main {
 //		System.out.println(info.getTitle());
 //		System.out.println(info.getWebSocketDebuggerUrl());
 //		controller = new CdpController(info.getWebSocketDebuggerUrl());
-		controller = new CdpController();
+		controller = new CdpControllerImpl();
 
 		scan();
 	}
@@ -37,14 +42,20 @@ public class Main {
 		scanner.close();
 	}
 
+	/**
+	 * CDPコマンド呼び出し
+	 * 　適宜cdplibのコマンドを追加
+	 * @param text
+	 * @return
+	 */
 	public static boolean parseCmd(String text) {
-//		String[] params = text.split(" ");
 		String[] params = text.split(" (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 		for(int cnt = 1; cnt < params.length; cnt++) {
 			params[cnt] = trimDoubleQuot(params[cnt]);
 		}
 
 		if ("q".equals(text) ) {
+			System.out.println("end");
 			return true;
 		}
 
@@ -142,9 +153,21 @@ public class Main {
 			return false;
 		}
 
+		// windowClose
+		if (text.startsWith("windowClose")) {
+			controller.windowClose();
+			return false;
+		}
+
+		// takeFullPicture
+		if (text.startsWith("takeFullPicture")) {
+			controller.takeFullPicture();
+			return false;
+		}
+
 		// getVersion
-		if (text.startsWith("getVersion ")) {
-			controller.getVersion();
+		if (text.startsWith("getVersion")) {
+			System.out.println(controller.getVersion());
 			return false;
 		}
 

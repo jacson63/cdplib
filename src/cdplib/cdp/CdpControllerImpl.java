@@ -1,8 +1,6 @@
 package cdplib.cdp;
 
-import java.io.FileOutputStream;
 import java.net.MalformedURLException;
-import java.util.Base64;
 import java.util.concurrent.TimeoutException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,12 +10,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import cdplib.cdpservice.ScreenShotService;
+import cdplib.cdpservice.ScreenShotServiceImpl;
+import cdplib.cdpservice.WsSendService;
+import cdplib.cdpservice.WsSendServiceFactory;
+import cdplib.lib.CdpJsonCreator;
 import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
 
 public class CdpControllerImpl implements CdpController{
 	final String VERSION = "v20230324";
 	WebSocketSync ws;
+	WsSendService wss;
 	final int SLEEP_ONE_MILTIME = 100;
 	String windowTargetId = "";
 	private enum ScreenShotParam {
@@ -31,8 +35,11 @@ public class CdpControllerImpl implements CdpController{
 		}
 	};
 
-	public CdpControllerImpl(String debuggerUrl) {
+	public CdpControllerImpl(String debuggerUrl) throws Exception {
 		ws = new WebSocketSync(debuggerUrl);
+
+		WsSendServiceFactory.setWebSocket(ws);
+		wss = WsSendServiceFactory.getSerivceSingleton();
 	}
 
 	public CdpControllerImpl() {
@@ -100,6 +107,9 @@ public class CdpControllerImpl implements CdpController{
 		}
 
 		return this.send(json);
+	}
+	private String sendJsonNode(CdpJsonCreator creator) {
+		return this.send(creator.getJson());
 	}
 
 	public String sendJavascript(String javascript) {
@@ -384,80 +394,11 @@ public class CdpControllerImpl implements CdpController{
 		ws.disconnect();
 	}
 
-	private void pageEnable(int id) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", id);
-		root.put("method", "Page.enable");
-		this.sendJsonNode(mapper, root);
-	}
-
-	private void setVisibleSize(int id) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", id);
-		root.put("method", "Emulation.setVisibleSize");
-
-		ObjectNode params = mapper.createObjectNode();
-		params.put(ScreenShotParam.width.name(), ScreenShotParam.width.value);
-		params.put(ScreenShotParam.height.name(), ScreenShotParam.height.value);
-
-		root.set("params", params);
-		this.sendJsonNode(mapper, root);
-	}
-
-	private void setDeviceMetricsOveride(int id) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", id);
-		root.put("method", "Emulation.setDeviceMetricsOverride");
-
-		ObjectNode params = mapper.createObjectNode();
-		params.put(ScreenShotParam.width.name(), ScreenShotParam.width.value);
-		params.put(ScreenShotParam.height.name(), ScreenShotParam.height.value);
-		params.put("deviceScaleFactor", 1);
-		params.put("mobile", false);
-
-		root.set("params", params);
-		this.sendJsonNode(mapper, root);
-	}
-
-	private void resetViewPort(int id) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", 1);
-		root.put("method", "Emulation.clearDeviceMetricsOverride");
-		this.sendJsonNode(mapper, root);
-	}
-
-	private String captureScreenshot(int id) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", id);
-		root.put("method", "Page.captureScreenshot");
-		return this.sendJsonNode(mapper, root);
-	}
-
 	@Override
-	public void takeFullPicture() {
-		// 画像サイズの設定
-		pageEnable(1);
-		setVisibleSize(2);
-		setDeviceMetricsOveride(3);
-
-		// スクショ取得
-		String ret = captureScreenshot(4);
-		System.out.println(ret);
-
-        byte[] screenshotData = Base64.getDecoder().decode(ret);
+	public void takeFullPicture() throws Exception {
+		ScreenShotService service = new ScreenShotServiceImpl();
         String screenshotPath = "C:\\Users\\jacson32\\Desktop\\programing\\chrome_gomidata\\fullscreen-screenshot.png";
-        try (FileOutputStream fos = new FileOutputStream(screenshotPath)) {
-            fos.write(screenshotData);
-        } catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		resetViewPort(5);
+		service.takeFullScreen(screenshotPath);
 	}
 
 	@Override

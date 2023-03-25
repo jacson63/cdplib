@@ -3,8 +3,6 @@ package cdplib.cdp;
 import java.util.concurrent.TimeoutException;
 
 public interface CdpController {
-	final int SLEEP_ONE_MILTIME = 100;
-
 	public String send(String message) ;
 
 	/**
@@ -116,7 +114,7 @@ public interface CdpController {
 	/**
 	 * スクリーンショットを取得する
 	 */
-	public void takeFullPicture();
+	public void takeFullPicture() throws Exception;
 
 	/**
 	 * 表示しているalertのメッセージを取得する

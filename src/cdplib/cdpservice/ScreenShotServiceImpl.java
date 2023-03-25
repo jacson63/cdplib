@@ -7,20 +7,11 @@ import cdplib.core.Emulation;
 import cdplib.core.EmulationImpl;
 import cdplib.core.Page;
 import cdplib.core.PageImpl;
+import cdplib.lib.DateUtil;
 import cdplib.lib.ResponseJson;
 
 public class ScreenShotServiceImpl implements ScreenShotService{
 	WsSendService wss;
-	private enum ScreenShotParam {
-		height(1920),
-		width(1080);
-
-		private int value;
-
-		ScreenShotParam(int value) {
-			this.value = value;
-		}
-	};
 
 	public ScreenShotServiceImpl() throws Exception {
 		wss = WsSendServiceFactory.getSerivceSingleton();
@@ -32,20 +23,16 @@ public class ScreenShotServiceImpl implements ScreenShotService{
 		Emulation emulation = new EmulationImpl();
 
 		// 画面サイズの設定
-		wss.send(page.enable(id++));
-		wss.send(emulation.setVisibleSize(id++
-				, ScreenShotParam.width.value
-				, ScreenShotParam.height.value));
+		String layout = wss.send(page.getLayoutMetrics(id++));
 		wss.send(emulation.setDeviceMetricsOveride(id++
-				, ScreenShotParam.width.value
-				, ScreenShotParam.height.value));
+				, ResponseJson.getResultCssContentSizeWidth(layout) + 100
+				, ResponseJson.getResultCssContentSizeHeight(layout) + 100));
 
-		// スクショ取得
-		String json = wss.send(page.captureScreenshot(id++));
+		// スクショ取得(少し時間かかるので長めにTimeout待ちする)
+		String json = wss.send(page.captureScreenshot(id++), 500, 100);
 		String base64str = ResponseJson.getResultData(json).asText();
 
 		wss.send(emulation.clearDeviceMetricsOverride(id++));
-		wss.send(page.disable(id++));
 
 		return base64str;
 	}
@@ -77,7 +64,8 @@ public class ScreenShotServiceImpl implements ScreenShotService{
 	 * 画像のダウンロードリンク(javascript)を作成する
 	 */
 	private static String createImageDownloadLink(String data) {
-		String fileName = "imgage";
+		String fileName = "imgage_" + DateUtil.getYYYYMMDDHHMMSS();
+
 		String toBlob = "function toBlob(base64) {\r\n"
 				+ "    var bin = atob(base64.replace(/^.*,/, ''));\r\n"
 				+ "    var buffer = new Uint8Array(bin.length);\r\n"

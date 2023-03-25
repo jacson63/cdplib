@@ -25,4 +25,16 @@ public class ResponseJson {
 	public static JsonNode getResultData(String json) {
 		return getResult(json).get(strCom.data);
 	}
+
+	public static JsonNode getResultCssContentSize(String json) {
+		return getResult(json).get(strCom.cssContentSize);
+	}
+
+	public static int getResultCssContentSizeWidth(String json) {
+		return Integer.parseInt(getResultCssContentSize(json).get(strCom.width).asText());
+	}
+
+	public static int getResultCssContentSizeHeight(String json) {
+		return Integer.parseInt(getResultCssContentSize(json).get(strCom.height).asText());
+	}
 }

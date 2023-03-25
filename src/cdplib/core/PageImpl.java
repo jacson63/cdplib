@@ -23,4 +23,10 @@ public class PageImpl implements Page{
 		return creator.getJson();
 	}
 
+	@Override
+	public String getLayoutMetrics(int id) {
+		CdpJsonCreator creator = new CdpJsonCreator(id, strPage.getLayoutMetrics);
+		return creator.getJson();
+	}
+
 }

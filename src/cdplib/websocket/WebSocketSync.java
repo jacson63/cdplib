@@ -18,6 +18,7 @@ public class WebSocketSync {
 	private boolean execFlg = false;
 	private static int WAIT_TIME = 500;
 	private static int WAIT_COUNT = 10;
+	private static int RECEIVABLE_QUANTITY = 100; //１リクエストのレスポンス受信可能回数
 
 	public WebSocketSync(String url) {
 		try {
@@ -37,7 +38,7 @@ public class WebSocketSync {
 
 			@Override
 			public void onOpen(WebSocket webSocket){
-				webSocket.request(10);
+				webSocket.request(RECEIVABLE_QUANTITY);
 			}
 			@Override
 			public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
@@ -48,7 +49,7 @@ public class WebSocketSync {
 
 					parts = new ArrayList<CharSequence>();
 					execFlg = false;
-					webSocket.request(10);
+					webSocket.request(RECEIVABLE_QUANTITY);
 				} else {
 					parts.add(data);
 				}
@@ -72,21 +73,34 @@ public class WebSocketSync {
 	 * @throws InterruptedException
 	 */
 	public String sendSync(String sendStr) throws TimeoutException, InterruptedException {
+		return this.sendSync(sendStr, WAIT_TIME, WAIT_COUNT);
+	}
+
+	/**
+	 * 送信
+	 * @param sendStr
+	 * @param waitCount
+	 * @param waitTime
+	 * @return レスポンス文字列
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	public String sendSync(String sendStr, int waitCount, int waitTime) throws TimeoutException, InterruptedException {
 		CLogger.finer("sendSync send:" + sendStr);
 		ws.sendText(sendStr, true);
 
 		execFlg = true;
 			//受信完了待ち
 		int cnt = 0;
-		for(; cnt < WAIT_COUNT; cnt++) {
+		for(; cnt < waitCount; cnt++) {
 			if ( execFlg ) {
-				Thread.sleep(WAIT_TIME);
+				Thread.sleep(waitTime);
 			} else {
 				break;
 			}
 		}
 
-		if (cnt == WAIT_COUNT) {
+		if (cnt == waitCount) {
 			throw new TimeoutException();
 		}
 

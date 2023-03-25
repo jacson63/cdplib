@@ -26,6 +26,7 @@ public class Main {
 //		System.out.println(info.getTitle());
 //		System.out.println(info.getWebSocketDebuggerUrl());
 //		controller = new CdpController(info.getWebSocketDebuggerUrl());
+
 		controller = new CdpControllerImpl();
 
 		scan();

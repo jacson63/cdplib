@@ -9,4 +9,5 @@ public interface Page {
 	public String enable(int id);
 	public String disable(int id);
 	public String captureScreenshot(int id);
+	public String getLayoutMetrics(int id);
 }

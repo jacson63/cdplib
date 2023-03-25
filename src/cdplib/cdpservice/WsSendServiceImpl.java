@@ -28,6 +28,18 @@ public class WsSendServiceImpl implements WsSendService {
 	}
 
 	@Override
+	public String send(String message, int waitCount, int waitTime) {
+		String res = "";
+		try {
+			res = ws.sendSync(message, waitCount, waitTime);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return res;
+	}
+
+	@Override
 	public String sendJsonNode(ObjectMapper mapper, ObjectNode root) {
 		String json = "";
 		try {

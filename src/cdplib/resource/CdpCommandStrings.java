@@ -8,6 +8,7 @@ public class CdpCommandStrings {
 		public static final String mobile = "mobile";
 		public static final String result = "result";
 		public static final String data = "data";
+		public static final String cssContentSize = "cssContentSize";
 	}
 
 	public class strRuntime {
@@ -27,7 +28,7 @@ public class CdpCommandStrings {
 		public static final String enable = Com + "enable";
 		public static final String disable = Com + "disable";
 		public static final String captureScreenshot = Com + "captureScreenshot";
-
+		public static final String getLayoutMetrics = Com + "getLayoutMetrics";
 	}
 }
 

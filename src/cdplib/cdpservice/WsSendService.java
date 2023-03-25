@@ -7,6 +7,7 @@ import cdplib.lib.CdpJsonCreator;
 
 public interface WsSendService {
 	public String send(String message);
+	public String send(String message, int waitCount, int waitTime);
 	public String sendJsonNode(ObjectMapper mapper, ObjectNode root) ;
 	public String sendJsonNode(CdpJsonCreator creator) ;
 	public String sendJavascript(String javascript) ;

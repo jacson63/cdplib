@@ -3,6 +3,7 @@ package cdplib.cdp;
 import java.util.concurrent.TimeoutException;
 
 public interface CdpController {
+	public void disConnect();
 	public String send(String message) ;
 
 	/**
@@ -115,7 +116,7 @@ public interface CdpController {
 	/**
 	 * スクリーンショットを取得する
 	 */
-	public void takeFullScreen() throws Exception;
+//	public void takeFullScreen() throws Exception;
 	public void takeFullScreenDL() throws Exception;
 
 	/**
@@ -125,11 +126,10 @@ public interface CdpController {
 	public String getDialogMessage();
 
 	/**
-	 * ダイアログの選択しを選択する
+	 * ダイアログの選択肢を選択する
 	 * @return
 	 */
 	public String clickDialogSelector();
-
 
 	/**
 	 *

@@ -6,9 +6,6 @@ public class WsSendServiceFactory {
 	private static WsSendService _instance;
 	private static WebSocketSync _ws;
 
-	private WsSendServiceFactory() {
-	}
-
 	public static void setWebSocket(WebSocketSync ws) {
 		_ws = ws;
 	}

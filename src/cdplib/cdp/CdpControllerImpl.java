@@ -10,10 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import cdplib.cdplogic.DialogCallbackLogic;
+import cdplib.cdpservice.CdpCallbackService;
 import cdplib.cdpservice.ScreenShotService;
 import cdplib.cdpservice.ScreenShotServiceImpl;
 import cdplib.cdpservice.WsSendService;
 import cdplib.cdpservice.WsSendServiceFactory;
+import cdplib.core.Page;
+import cdplib.core.PageImpl;
+import cdplib.resource.CdpCommandStrings.strPage;
 import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
 
@@ -33,6 +38,10 @@ public class CdpControllerImpl implements CdpController{
 
 	public CdpControllerImpl() throws Exception {
 		this._currentConnect();
+	}
+
+	public void disConnect() {
+		ws.disconnect();
 	}
 
 	private JsonNode jsonParse(String json) throws JsonMappingException, JsonProcessingException {
@@ -392,29 +401,45 @@ public class CdpControllerImpl implements CdpController{
 		ws.disconnect();
 	}
 
-	@Override
-	public void takeFullScreen() throws Exception {
+//	@Override
+//	public void takeFullScreen() throws Exception {
 //		ScreenShotService service = new ScreenShotServiceImpl();
 //		String screenshotPath = "fullscreen-screenshot.png";
 //		service.takeFullScreen(screenshotPath);
-	}
+//	}
 
 	@Override
 	public void takeFullScreenDL() throws Exception {
 		ScreenShotService service = new ScreenShotServiceImpl();
 		service.takeFullScreenDL();
-
 	}
 
 	@Override
 	public String getDialogMessage() {
-		// TODO 自動生成されたメソッド・スタブ
-		return null;
+		//dialogを出す前にenableにしておく必要あり
+		Page page = new PageImpl();
+		wss.send(page.enable(1), false);
+
+		DialogCallbackLogic logic = DialogCallbackLogic.getInstance();
+		CdpCallbackService srv;
+		try {
+			srv = WsSendServiceFactory.getSerivceSingleton().getCallbackService();
+			srv.addCallback(strPage.javascriptDialogOpening, logic);
+			srv.addCallback(strPage.javascriptDialogClosed, logic);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return logic.getMessage();
 	}
 
 	@Override
 	public String clickDialogSelector() {
-		// TODO 自動生成されたメソッド・スタブ
+		//dialogを出す前にenableにしておく必要あり
+		Page page = new PageImpl();
+		wss.send(page.enable(1), false);
+
+		wss.send(page.handleJavaScriptDialog(2, true, ""));
 		return null;
 	}
 

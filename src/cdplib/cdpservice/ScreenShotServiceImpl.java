@@ -29,7 +29,7 @@ public class ScreenShotServiceImpl implements ScreenShotService{
 				, ResponseJson.getResultCssContentSizeHeight(layout) + 100));
 
 		// スクショ取得(少し時間かかるので長めにTimeout待ちする)
-		String json = wss.send(page.captureScreenshot(id++), 500, 100);
+		String json = wss.send(page.captureScreenshot(id++), 500, 100, true);
 		String base64str = ResponseJson.getResultData(json).asText();
 
 		wss.send(emulation.clearDeviceMetricsOverride(id++));

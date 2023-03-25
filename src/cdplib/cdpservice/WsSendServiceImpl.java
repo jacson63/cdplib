@@ -10,9 +10,12 @@ import cdplib.websocket.WebSocketSync;
 
 public class WsSendServiceImpl implements WsSendService {
 	WebSocketSync ws;
+	CdpCallbackService srv;
 
 	public WsSendServiceImpl(WebSocketSync ws) {
 		this.ws = ws;
+		this.srv = new CdpCallbackServiceImpl();
+		this.ws.setCallback(this.srv);
 	}
 
 	@Override
@@ -28,10 +31,15 @@ public class WsSendServiceImpl implements WsSendService {
 	}
 
 	@Override
-	public String send(String message, int waitCount, int waitTime) {
+	public String send(String message, boolean responseFlg) {
+		return send(message, 0, 0, responseFlg);
+	}
+
+	@Override
+	public String send(String message, int waitCount, int waitTime, boolean responseFlg) {
 		String res = "";
 		try {
-			res = ws.sendSync(message, waitCount, waitTime);
+			res = ws.sendSync(message, waitCount, waitTime, responseFlg);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -63,4 +71,8 @@ public class WsSendServiceImpl implements WsSendService {
 		return send(creator.getJson());
 	}
 
+	@Override
+	public CdpCallbackService getCallbackService() {
+		return this.srv;
+	}
 }

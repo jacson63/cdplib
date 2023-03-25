@@ -57,6 +57,7 @@ public class Main {
 
 		if ("q".equals(text) ) {
 			System.out.println("end");
+			controller.disConnect();
 			return true;
 		}
 
@@ -160,7 +161,7 @@ public class Main {
 			return false;
 		}
 
-		// takeFullPicture
+		// takeFullScreen
 		if (text.startsWith("takeFullScreen")) {
 			try {
 				controller.takeFullScreenDL();
@@ -168,6 +169,18 @@ public class Main {
 				// TODO 自動生成された catch ブロック
 				e.printStackTrace();
 			}
+			return false;
+		}
+
+		// getDialogMessage
+		if (text.startsWith("getDialogMessage")) {
+			System.out.println(controller.getDialogMessage());
+			return false;
+		}
+
+		// clickDialogSelector
+		if (text.startsWith("clickDialogSelector")) {
+			controller.clickDialogSelector();
 			return false;
 		}
 

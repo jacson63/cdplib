@@ -9,6 +9,9 @@ public class CdpCommandStrings {
 		public static final String result = "result";
 		public static final String data = "data";
 		public static final String cssContentSize = "cssContentSize";
+
+		public static final String method = "method";
+		public static final String params = "params";
 	}
 
 	public class strRuntime {
@@ -29,6 +32,12 @@ public class CdpCommandStrings {
 		public static final String disable = Com + "disable";
 		public static final String captureScreenshot = Com + "captureScreenshot";
 		public static final String getLayoutMetrics = Com + "getLayoutMetrics";
+		public static final String handleJavaScriptDialog = Com + "handleJavaScriptDialog";
+		public static final String handleJavaScriptDialog_accept ="accept";
+		public static final String handleJavaScriptDialog_promptText = "promptText";
+		public static final String javascriptDialogOpening = Com + "javascriptDialogOpening";
+		public static final String javascriptDialogOpening_message = "message";
+		public static final String javascriptDialogClosed = Com + "javascriptDialogClosed";
 	}
 }
 

@@ -14,7 +14,8 @@ import debug.CLogger;
 
 public class WebSocketSync {
 	private WebSocket ws;
-	private String responceBuf;
+	private WebSoketCallback wsCallback;
+	private String responseBuf;
 	private boolean execFlg = false;
 	private static int WAIT_TIME = 500;
 	private static int WAIT_COUNT = 10;
@@ -45,11 +46,15 @@ public class WebSocketSync {
 				CLogger.finest("ws recv(" + last + "):" + data.toString());
 				if(last) {
 					parts.add(data);
-					responceBuf = String.join("", parts);
+					responseBuf = String.join("", parts);
 
 					parts = new ArrayList<CharSequence>();
 					execFlg = false;
 					webSocket.request(RECEIVABLE_QUANTITY);
+
+					if (wsCallback != null) {
+						wsCallback.callback(responseBuf);
+					}
 				} else {
 					parts.add(data);
 				}
@@ -73,7 +78,7 @@ public class WebSocketSync {
 	 * @throws InterruptedException
 	 */
 	public String sendSync(String sendStr) throws TimeoutException, InterruptedException {
-		return this.sendSync(sendStr, WAIT_TIME, WAIT_COUNT);
+		return this.sendSync(sendStr, WAIT_TIME, WAIT_COUNT, true);
 	}
 
 	/**
@@ -81,13 +86,19 @@ public class WebSocketSync {
 	 * @param sendStr
 	 * @param waitCount
 	 * @param waitTime
+	 * @param responseFlg
 	 * @return レスポンス文字列
 	 * @throws TimeoutException
 	 * @throws InterruptedException
 	 */
-	public String sendSync(String sendStr, int waitCount, int waitTime) throws TimeoutException, InterruptedException {
+	public String sendSync(String sendStr, int waitCount, int waitTime, boolean responseFlg) throws TimeoutException, InterruptedException {
 		CLogger.finer("sendSync send:" + sendStr);
 		ws.sendText(sendStr, true);
+
+		if(!responseFlg) {
+			//レスポンス待ちしない場合はここで終了
+			return "";
+		}
 
 		execFlg = true;
 			//受信完了待ち
@@ -104,8 +115,12 @@ public class WebSocketSync {
 			throw new TimeoutException();
 		}
 
-		CLogger.finer("sendSync res:" + this.responceBuf);
-		return this.responceBuf;
+		CLogger.finer("sendSync res:" + this.responseBuf);
+		return this.responseBuf;
+	}
+
+	public void setCallback(WebSoketCallback callback) {
+		this.wsCallback = callback;
 	}
 
 	public void disconnect() {

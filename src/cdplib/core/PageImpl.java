@@ -29,4 +29,16 @@ public class PageImpl implements Page{
 		return creator.getJson();
 	}
 
+	@Override
+	public String handleJavaScriptDialog(int id, boolean accept, String promptText) {
+		CdpJsonCreator creator = new CdpJsonCreator(id, strPage.handleJavaScriptDialog);
+		creator.addParam(strPage.handleJavaScriptDialog_accept, accept);
+		creator.addParam(strPage.handleJavaScriptDialog_promptText, promptText);
+		return creator.getJson();
+	}
+
+	@Override
+	public String onJavascriptDialogOpening() {
+		return "";
+	}
 }

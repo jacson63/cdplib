@@ -9,4 +9,5 @@ public interface WsSendService {
 	public String send(String message);
 	public String sendJsonNode(ObjectMapper mapper, ObjectNode root) ;
 	public String sendJsonNode(CdpJsonCreator creator) ;
+	public String sendJavascript(String javascript) ;
 }

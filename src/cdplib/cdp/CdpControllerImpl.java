@@ -14,7 +14,6 @@ import cdplib.cdpservice.ScreenShotService;
 import cdplib.cdpservice.ScreenShotServiceImpl;
 import cdplib.cdpservice.WsSendService;
 import cdplib.cdpservice.WsSendServiceFactory;
-import cdplib.lib.CdpJsonCreator;
 import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
 
@@ -24,25 +23,15 @@ public class CdpControllerImpl implements CdpController{
 	WsSendService wss;
 	final int SLEEP_ONE_MILTIME = 100;
 	String windowTargetId = "";
-	private enum ScreenShotParam {
-		height(1920),
-		width(1080);
 
-		private int value;
+//	public CdpControllerImpl(String debuggerUrl) throws Exception {
+//		ws = new WebSocketSync(debuggerUrl);
+//
+//		WsSendServiceFactory.setWebSocket(ws);
+//		wss = WsSendServiceFactory.getSerivceSingleton();
+//	}
 
-		ScreenShotParam(int value) {
-			this.value = value;
-		}
-	};
-
-	public CdpControllerImpl(String debuggerUrl) throws Exception {
-		ws = new WebSocketSync(debuggerUrl);
-
-		WsSendServiceFactory.setWebSocket(ws);
-		wss = WsSendServiceFactory.getSerivceSingleton();
-	}
-
-	public CdpControllerImpl() {
+	public CdpControllerImpl() throws Exception {
 		this._currentConnect();
 	}
 
@@ -66,8 +55,9 @@ public class CdpControllerImpl implements CdpController{
 	}
 	/**
 	 * 現在開いているタブのデバッグポートに接続する
+	 * @throws Exception
 	 */
-	private void _currentConnect() {
+	private void _currentConnect() throws Exception {
 		CdpInfo info;
 		try {
 			// currentの情報取得
@@ -80,8 +70,12 @@ public class CdpControllerImpl implements CdpController{
 		CLogger.finest("window title: " + info.getTitle());
 		CLogger.finest("debugger url: " + info.getWebSocketDebuggerUrl());
 		ws = new WebSocketSync(info.getWebSocketDebuggerUrl());
+
+		WsSendServiceFactory.setWebSocket(ws);
+		wss = WsSendServiceFactory.getSerivceSingleton();
 	}
 
+	@Deprecated
 	public String send(String message) {
 		String res = "";
 		try {
@@ -98,6 +92,7 @@ public class CdpControllerImpl implements CdpController{
 	 * @param message
 	 * @return
 	 */
+	@Deprecated
 	private String sendJsonNode(ObjectMapper mapper, ObjectNode root) {
 		String json = "";
 		try {
@@ -108,22 +103,21 @@ public class CdpControllerImpl implements CdpController{
 
 		return this.send(json);
 	}
-	private String sendJsonNode(CdpJsonCreator creator) {
-		return this.send(creator.getJson());
-	}
 
 	public String sendJavascript(String javascript) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode root = mapper.createObjectNode();
-		root.put("id", 1);
-		root.put("method", "Runtime.evaluate");
+//		ObjectMapper mapper = new ObjectMapper();
+//		ObjectNode root = mapper.createObjectNode();
+//		root.put("id", 1);
+//		root.put("method", "Runtime.evaluate");
+//
+//		ObjectNode params = mapper.createObjectNode();
+//		params.put("expression", javascript);
+//
+//		root.set("params", params);
+//
+//		return this.sendJsonNode(mapper, root);
 
-		ObjectNode params = mapper.createObjectNode();
-		params.put("expression", javascript);
-
-		root.set("params", params);
-
-		return this.sendJsonNode(mapper, root);
+		return wss.sendJavascript(javascript);
 	}
 
 	public String input(String selector, String value) {
@@ -368,7 +362,11 @@ public class CdpControllerImpl implements CdpController{
 
 		// wsの向き先を変える
 		ws.disconnect();
-		this._currentConnect();
+		try {
+			this._currentConnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -395,10 +393,17 @@ public class CdpControllerImpl implements CdpController{
 	}
 
 	@Override
-	public void takeFullPicture() throws Exception {
+	public void takeFullScreen() throws Exception {
+//		ScreenShotService service = new ScreenShotServiceImpl();
+//		String screenshotPath = "fullscreen-screenshot.png";
+//		service.takeFullScreen(screenshotPath);
+	}
+
+	@Override
+	public void takeFullScreenDL() throws Exception {
 		ScreenShotService service = new ScreenShotServiceImpl();
-        String screenshotPath = "C:\\Users\\jacson32\\Desktop\\programing\\chrome_gomidata\\fullscreen-screenshot.png";
-		service.takeFullScreen(screenshotPath);
+		service.takeFullScreenDL();
+
 	}
 
 	@Override

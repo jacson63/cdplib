@@ -103,6 +103,7 @@ public interface CdpController {
 	 * 新しいウィンドウを開き、Controllerの向きを新規ウィンドウに切り替える
 	 * @param url
 	 * @return
+	 * @throws Exception
 	 */
 	public void windowOpen(String url) ;
 
@@ -114,7 +115,8 @@ public interface CdpController {
 	/**
 	 * スクリーンショットを取得する
 	 */
-	public void takeFullPicture() throws Exception;
+	public void takeFullScreen() throws Exception;
+	public void takeFullScreenDL() throws Exception;
 
 	/**
 	 * 表示しているalertのメッセージを取得する

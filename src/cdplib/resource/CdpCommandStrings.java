@@ -6,8 +6,15 @@ public class CdpCommandStrings {
 		public static final String width = "width";
 		public static final String deviceScaleFactor = "deviceScaleFactor";
 		public static final String mobile = "mobile";
+		public static final String result = "result";
+		public static final String data = "data";
 	}
 
+	public class strRuntime {
+		static final String Com = "Runtime.";
+		public static final String evaluate = Com + "evaluate";
+		public static final String evaluate_expression = "expression";
+	}
 	public class strEnumlation {
 		static final String Com = "Emulation.";
 		public static final String setVisibleSize = Com + "setVisibleSize";

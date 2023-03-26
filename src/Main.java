@@ -172,6 +172,12 @@ public class Main {
 			return false;
 		}
 
+		// pageEnable
+		if (text.startsWith("pageEnable")) {
+			controller.pageEnable();
+			return false;
+		}
+
 		// getDialogMessage
 		if (text.startsWith("getDialogMessage")) {
 			System.out.println(controller.getDialogMessage());

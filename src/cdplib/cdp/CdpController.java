@@ -119,6 +119,8 @@ public interface CdpController {
 //	public void takeFullScreen() throws Exception;
 	public void takeFullScreenDL() throws Exception;
 
+	public void pageEnable();
+
 	/**
 	 * 表示しているalertのメッセージを取得する
 	 * @return

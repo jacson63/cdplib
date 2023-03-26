@@ -10,15 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import cdplib.cdplogic.DialogCallbackLogic;
-import cdplib.cdpservice.CdpCallbackService;
+import cdplib.cdpdata.EventResource;
+import cdplib.cdpdata.eventresponse.page.JavascriptDialogOpening;
 import cdplib.cdpservice.ScreenShotService;
 import cdplib.cdpservice.ScreenShotServiceImpl;
 import cdplib.cdpservice.WsSendService;
 import cdplib.cdpservice.WsSendServiceFactory;
 import cdplib.core.Page;
 import cdplib.core.PageImpl;
-import cdplib.resource.CdpCommandStrings.strPage;
+import cdplib.resource.CdpCommandStrings.PageEvents;
 import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
 
@@ -415,32 +415,35 @@ public class CdpControllerImpl implements CdpController{
 	}
 
 	@Override
-	public String getDialogMessage() {
-		//dialogを出す前にenableにしておく必要あり
+	public void pageEnable() {
 		Page page = new PageImpl();
 		wss.send(page.enable(1), false);
+	}
 
-		DialogCallbackLogic logic = DialogCallbackLogic.getInstance();
-		CdpCallbackService srv;
-		try {
-			srv = WsSendServiceFactory.getSerivceSingleton().getCallbackService();
-			srv.addCallback(strPage.javascriptDialogOpening, logic);
-			srv.addCallback(strPage.javascriptDialogClosed, logic);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	@Override
+	public String getDialogMessage() {
+		JsonNode json = EventResource.getInstance()
+							.getData(PageEvents.javascriptDialogOpening);
+		JavascriptDialogOpening response = new JavascriptDialogOpening();
+		response.parse(json);
 
-		return logic.getMessage();
+		return response.getMessage();
 	}
 
 	@Override
 	public String clickDialogSelector() {
-		//dialogを出す前にenableにしておく必要あり
-		Page page = new PageImpl();
-		wss.send(page.enable(1), false);
+		//イベントデータを取得して、ダイアログが開いているかを取得する
+		JsonNode json = EventResource.getInstance()
+							.getData(PageEvents.javascriptDialogOpening);
+		JavascriptDialogOpening response = new JavascriptDialogOpening();
+		response.parse(json);
 
-		wss.send(page.handleJavaScriptDialog(2, true, ""));
-		return null;
+		//ダイアログが開いている場合、accept実行
+		if(response.isHasBrowserHandler()) {
+			Page page = new PageImpl();
+			wss.send(page.handleJavaScriptDialog(1, true, ""));
+		}
+		return response.getMessage();
 	}
 
 	@Override

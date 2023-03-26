@@ -12,5 +12,4 @@ public interface WsSendService {
 	public String sendJsonNode(ObjectMapper mapper, ObjectNode root) ;
 	public String sendJsonNode(CdpJsonCreator creator) ;
 	public String sendJavascript(String javascript) ;
-	public CdpCallbackService getCallbackService();
 }

@@ -5,17 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import cdplib.lib.CdpJsonCreator;
-import cdplib.resource.CdpCommandStrings.strRuntime;
+import cdplib.resource.CdpCommandStrings.RuntimeMethods;
 import cdplib.websocket.WebSocketSync;
 
 public class WsSendServiceImpl implements WsSendService {
 	WebSocketSync ws;
-	CdpCallbackService srv;
 
 	public WsSendServiceImpl(WebSocketSync ws) {
 		this.ws = ws;
-		this.srv = new CdpCallbackServiceImpl();
-		this.ws.setCallback(this.srv);
 	}
 
 	@Override
@@ -66,13 +63,8 @@ public class WsSendServiceImpl implements WsSendService {
 
 	@Override
 	public String sendJavascript(String javascript) {
-		CdpJsonCreator creator = new CdpJsonCreator(1, strRuntime.evaluate);
-		creator.addParam(strRuntime.evaluate_expression, javascript);
+		CdpJsonCreator creator = new CdpJsonCreator(1, RuntimeMethods.evaluate);
+		creator.addParam(RuntimeMethods.evaluate_expression, javascript);
 		return send(creator.getJson());
-	}
-
-	@Override
-	public CdpCallbackService getCallbackService() {
-		return this.srv;
 	}
 }

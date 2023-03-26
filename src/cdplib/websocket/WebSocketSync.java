@@ -10,12 +10,13 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import cdplib.cdpdata.EventResource;
 import debug.CLogger;
 
 public class WebSocketSync {
 	private WebSocket ws;
-	private WebSoketCallback wsCallback;
 	private String responseBuf;
+	private EventResource eventResource = EventResource.getInstance();
 	private boolean execFlg = false;
 	private static int WAIT_TIME = 500;
 	private static int WAIT_COUNT = 10;
@@ -52,9 +53,8 @@ public class WebSocketSync {
 					execFlg = false;
 					webSocket.request(RECEIVABLE_QUANTITY);
 
-					if (wsCallback != null) {
-						wsCallback.callback(responseBuf);
-					}
+					//callbackデータ登録処理
+					eventResource.setData(responseBuf);
 				} else {
 					parts.add(data);
 				}
@@ -117,10 +117,6 @@ public class WebSocketSync {
 
 		CLogger.finer("sendSync res:" + this.responseBuf);
 		return this.responseBuf;
-	}
-
-	public void setCallback(WebSoketCallback callback) {
-		this.wsCallback = callback;
 	}
 
 	public void disconnect() {

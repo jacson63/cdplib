@@ -1,10 +1,10 @@
 package cdplib.cdp;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.TimeoutException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -44,7 +44,7 @@ public class CdpControllerImpl implements CdpController{
 		ws.disconnect();
 	}
 
-	private JsonNode jsonParse(String json) throws JsonMappingException, JsonProcessingException {
+	private JsonNode jsonParse(String json) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		return  mapper.readTree(json);
 	}
@@ -135,7 +135,7 @@ public class CdpControllerImpl implements CdpController{
 	}
 
 	public String select(String selector, String value) {
-		final String FORMAT  = "document.querySelector('%s') = %s";
+		final String FORMAT  = "document.querySelector('%s').value = %s";
 		return this.sendJavascript(String.format(FORMAT, selector, value));
 	}
 
@@ -163,7 +163,7 @@ public class CdpControllerImpl implements CdpController{
 		return this.sendJsonNode(mapper, root);
 	}
 
-	private int getRootNodeId() throws JsonMappingException, JsonProcessingException {
+	private int getRootNodeId() throws IOException {
 		String retJson = domGetDocument();
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node;
@@ -187,7 +187,7 @@ public class CdpControllerImpl implements CdpController{
 		return this.sendJsonNode(mapper, root);
 	}
 
-	private int getNodeId(String selector) throws JsonMappingException, JsonProcessingException {
+	private int getNodeId(String selector) throws IOException {
 		int	rootNodeId = getRootNodeId();
 		String retJson  = domQuerySelector(rootNodeId, selector);
 		ObjectMapper mapper = new ObjectMapper();
@@ -201,7 +201,7 @@ public class CdpControllerImpl implements CdpController{
 		int nodeId;
 		try {
 			nodeId = getNodeId(selector);
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return "";
 		}
@@ -233,7 +233,7 @@ public class CdpControllerImpl implements CdpController{
 				}
 				waitForTimeout();
 			}
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}
@@ -251,7 +251,7 @@ public class CdpControllerImpl implements CdpController{
 		JsonNode node;
 		try {
 			node = mapper.readTree(retJson);
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return "";
 		}
@@ -365,7 +365,7 @@ public class CdpControllerImpl implements CdpController{
 		try {
 			JsonNode node = jsonParse(ret);
 			this.windowTargetId = node.get("result").get("targetId").asText();
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 

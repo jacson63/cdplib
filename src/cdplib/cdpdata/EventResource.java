@@ -1,11 +1,11 @@
 package cdplib.cdpdata;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,7 +74,7 @@ public class EventResource {
 		try {
 			node = mapper.readTree(json);
 			method = node.get(FieldName.method).asText();
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}

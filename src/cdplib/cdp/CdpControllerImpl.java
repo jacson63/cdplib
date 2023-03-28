@@ -23,7 +23,6 @@ import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
 
 public class CdpControllerImpl implements CdpController{
-	final String VERSION = "v20230324";
 	WebSocketSync ws;
 	WsSendService wss;
 	final int SLEEP_ONE_MILTIME = 100;
@@ -245,7 +244,8 @@ public class CdpControllerImpl implements CdpController{
 		return;
 	}
 
-	private String getUrl() {
+	@Override
+	public String getUrl() {
 		String retJson = this.sendJavascript("location.href");
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode node;
@@ -401,6 +401,11 @@ public class CdpControllerImpl implements CdpController{
 		ws.disconnect();
 	}
 
+	@Override
+	public void scrollDown() {
+		wss.sendJavascript("window.scrollTo(0, window.document.body.scrollHeight);");
+	}
+
 //	@Override
 //	public void takeFullScreen() throws Exception {
 //		ScreenShotService service = new ScreenShotServiceImpl();
@@ -444,10 +449,5 @@ public class CdpControllerImpl implements CdpController{
 			wss.send(page.handleJavaScriptDialog(1, true, ""));
 		}
 		return response.getMessage();
-	}
-
-	@Override
-	public String getVersion() {
-		return this.VERSION;
 	}
 }

@@ -49,6 +49,12 @@ public interface CdpController {
 	public String domQuerySelector(int nodeId, String selector) ;
 
 	/**
+	 * 現在のURLを取得する
+	 * @return
+	 */
+	public String getUrl();
+
+	/**
 	 * htmlのinput fileにファイルを転送
 	 * @param selector
 	 * @param value
@@ -114,6 +120,11 @@ public interface CdpController {
 	public void windowClose();
 
 	/**
+	 * ページを最後までスクロールする
+	 */
+	public void scrollDown();
+
+	/**
 	 * スクリーンショットを取得する
 	 */
 //	public void takeFullScreen() throws Exception;
@@ -132,10 +143,4 @@ public interface CdpController {
 	 * @return
 	 */
 	public String clickDialogSelector();
-
-	/**
-	 *
-	 * @return
-	 */
-	public String getVersion();
 }

@@ -16,6 +16,8 @@ import cdplib.cdpservice.ScreenShotService;
 import cdplib.cdpservice.ScreenShotServiceImpl;
 import cdplib.cdpservice.WsSendService;
 import cdplib.cdpservice.WsSendServiceFactory;
+import cdplib.cdpservice.XpathService;
+import cdplib.cdpservice.XpathServiceImpl;
 import cdplib.core.Page;
 import cdplib.core.PageImpl;
 import cdplib.resource.CdpCommandStrings.PageEvents;
@@ -25,6 +27,7 @@ import debug.CLogger;
 public class CdpControllerImpl implements CdpController{
 	WebSocketSync ws;
 	WsSendService wss;
+	XpathService xpathService;
 	final int SLEEP_ONE_MILTIME = 100;
 	String windowTargetId = "";
 
@@ -37,6 +40,7 @@ public class CdpControllerImpl implements CdpController{
 
 	public CdpControllerImpl() throws Exception {
 		this._currentConnect();
+		this.xpathService = new XpathServiceImpl();
 	}
 
 	public void disConnect() {
@@ -128,10 +132,39 @@ public class CdpControllerImpl implements CdpController{
 		return wss.sendJavascript(javascript);
 	}
 
-	public String input(String selector, String value) {
+ 	public String input(String selector, String value) {
 		final String FORMAT  = "document.querySelector('%s').value='%s'";
 		return this.sendJavascript(String.format(FORMAT, selector, value));
 	}
+
+ 	private boolean isVisibled(String selector) {
+ 		String ret = this.sendJavascript(""
+ 				+ "{"
+ 				+ 	"let selector = '" + selector + "';"
+ 				+ 	"function isVisible (selector) {"
+ 				+ 		"let element = document.querySelector(selector);"
+ 				+ 		"if (element.offsetWidth > 0 && element.offsetHeight > 0) {"
+ 				+			"return true;"
+ 				+ 		"}"
+ 				+ 		"return false;"
+ 				+ 	"}"
+ 				+ 	"isVisible(selector);"
+ 				+ "}");
+ 		try {
+			return jsonParse(ret).get("result").get("result").get("value").asBoolean();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+ 	}
+
+ 	@Override
+ 	public String input_s(String selector, String value) throws Exception {
+ 		if (!isVisibled(selector)) {
+ 			throw new Exception(String.format("selector(%s) cannot input", selector));
+ 		}
+ 		return this.input(selector, value);
+ 	}
 
 	public String select(String selector, String value) {
 		final String FORMAT  = "document.querySelector('%s').value = %s";

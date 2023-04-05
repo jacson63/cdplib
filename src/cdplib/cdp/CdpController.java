@@ -13,7 +13,6 @@ public interface CdpController {
 	 */
 	public String sendJavascript(String javascript) ;
 
-
 	/**
 	 * htmlのinputに値を入れる
 	 * @param selector
@@ -21,6 +20,15 @@ public interface CdpController {
 	 * @return
 	 */
 	public String input(String selector, String value) ;
+
+	/**
+	 * htmlのinputに値を入れる(入力可能か判定をする)
+	 * @param selector
+	 * @param value
+	 * @return
+	 * @throws Throwable
+	 */
+	public String input_s(String selector, String value) throws Throwable ;
 
 	/**
 	 * htmlのselect選択

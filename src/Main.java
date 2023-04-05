@@ -85,6 +85,16 @@ public class Main {
 			return false;
 		}
 
+		// input_s [selector] [value]
+		if (text.startsWith("input_s ")) {
+			try {
+				controller.input_s(params[1], params[2]);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+
 		// select [selector] [value]
 		if (text.startsWith("select ")) {
 			controller.select(params[1], params[2]);
@@ -187,12 +197,6 @@ public class Main {
 		// clickDialogSelector
 		if (text.startsWith("clickDialogSelector")) {
 			controller.clickDialogSelector();
-			return false;
-		}
-
-		// getVersion
-		if (text.startsWith("getVersion")) {
-			System.out.println(controller.getVersion());
 			return false;
 		}
 

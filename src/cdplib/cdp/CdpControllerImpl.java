@@ -132,11 +132,6 @@ public class CdpControllerImpl implements CdpController{
 		return wss.sendJavascript(javascript);
 	}
 
- 	public String input(String selector, String value) {
-		final String FORMAT  = "document.querySelector('%s').value='%s'";
-		return this.sendJavascript(String.format(FORMAT, selector, value));
-	}
-
  	private boolean isVisibled(String selector) {
  		String ret = this.sendJavascript(""
  				+ "{"
@@ -159,19 +154,25 @@ public class CdpControllerImpl implements CdpController{
  	}
 
  	@Override
- 	public String input_s(String selector, String value) throws Exception {
+ 	public String input(String selector, String value) throws Exception {
  		if (!isVisibled(selector)) {
  			throw new Exception(String.format("selector(%s) cannot input", selector));
  		}
  		return this.input(selector, value);
  	}
 
-	public String select(String selector, String value) {
+	public String select(String selector, String value) throws Exception {
+ 		if (!isVisibled(selector)) {
+ 			throw new Exception(String.format("selector(%s) cannot select", selector));
+ 		}
 		final String FORMAT  = "document.querySelector('%s').value = %s";
 		return this.sendJavascript(String.format(FORMAT, selector, value));
 	}
 
-	public String click(String selector) {
+	public String click(String selector) throws Exception {
+ 		if (!isVisibled(selector)) {
+ 			throw new Exception(String.format("selector(%s) cannot click", selector));
+ 		}
 		final String FORMAT  = "document.querySelector('%s').click()";
 		return this.sendJavascript(String.format(FORMAT, selector));
 	}

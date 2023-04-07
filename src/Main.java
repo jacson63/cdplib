@@ -81,15 +81,10 @@ public class Main {
 		 */
 		// input [selector] [value]
 		if (text.startsWith("input ")) {
-			controller.input(params[1], params[2]);
-			return false;
-		}
-
-		// input_s [selector] [value]
-		if (text.startsWith("input_s ")) {
 			try {
-				controller.input_s(params[1], params[2]);
-			} catch (Throwable e) {
+				controller.input(params[1], params[2]);
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
 				e.printStackTrace();
 			}
 			return false;
@@ -97,13 +92,23 @@ public class Main {
 
 		// select [selector] [value]
 		if (text.startsWith("select ")) {
-			controller.select(params[1], params[2]);
+			try {
+				controller.select(params[1], params[2]);
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
 			return false;
 		}
 
 		// click [selector]
 		if (text.startsWith("click ")) {
-			controller.click(params[1]);
+			try {
+				controller.click(params[1]);
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
 			return false;
 		}
 

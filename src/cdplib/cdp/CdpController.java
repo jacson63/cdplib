@@ -18,33 +18,27 @@ public interface CdpController {
 	 * @param selector
 	 * @param value
 	 * @return
+	 * @throws Exception
 	 */
-	public String input(String selector, String value) ;
-
-	/**
-	 * htmlのinputに値を入れる(入力可能か判定をする)
-	 * @param selector
-	 * @param value
-	 * @return
-	 * @throws Throwable
-	 */
-	public String input_s(String selector, String value) throws Throwable ;
+	public String input(String selector, String value) throws Exception ;
 
 	/**
 	 * htmlのselect選択
 	 * @param selector
 	 * @param value
 	 * @return
+	 * @throws Exception
 	 */
-	public String select(String selector, String value) ;
+	public String select(String selector, String value) throws Exception ;
 
 	/**
 	 * htmlのbutton click
 	 * @param selector
 	 * @param value
 	 * @return
+	 * @throws Exception
 	 */
-	public String click(String selector) ;
+	public String click(String selector) throws Exception ;
 
 	public String domEnable() ;
 

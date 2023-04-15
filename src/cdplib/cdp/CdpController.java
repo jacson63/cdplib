@@ -39,6 +39,7 @@ public interface CdpController {
 	 * @throws Exception
 	 */
 	public String click(String selector) throws Exception ;
+	public String click2(String selector) throws Exception ;
 
 	public String domEnable() ;
 
@@ -61,8 +62,18 @@ public interface CdpController {
 	 * @param selector
 	 * @param value
 	 * @return
+	 * @throws Exception
 	 */
-	public String fileUpload(String selector, String filePath) ;
+	public String fileUpload(String selector, String filePath) throws Exception ;
+
+	/**
+	 * htmlのinput fileにファイルを転送(CDP版)
+	 * @param selector
+	 * @param value
+	 * @return
+	 * @throws Exception
+	 */
+	public String fileUpload2(String selector, String filePath) throws Exception ;
 
 	/**
 	 * selectorの要素が使えるようになるまで待つ

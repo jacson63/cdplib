@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import cdplib.cdpdata.EventResource;
+import cdplib.cdpdata.eventresponse.page.FileChooserOpend;
 import cdplib.cdpdata.eventresponse.page.JavascriptDialogOpening;
 import cdplib.cdpservice.ScreenShotService;
 import cdplib.cdpservice.ScreenShotServiceImpl;
@@ -18,8 +19,14 @@ import cdplib.cdpservice.WsSendService;
 import cdplib.cdpservice.WsSendServiceFactory;
 import cdplib.cdpservice.XpathService;
 import cdplib.cdpservice.XpathServiceImpl;
+import cdplib.core.Dom;
+import cdplib.core.DomImpl;
+import cdplib.core.Input;
+import cdplib.core.InputImpl;
 import cdplib.core.Page;
 import cdplib.core.PageImpl;
+import cdplib.core.types.DomQuad;
+import cdplib.resource.CdpCommandStrings.FieldName;
 import cdplib.resource.CdpCommandStrings.PageEvents;
 import cdplib.websocket.WebSocketSync;
 import debug.CLogger;
@@ -177,6 +184,29 @@ public class CdpControllerImpl implements CdpController{
 		return this.sendJavascript(String.format(FORMAT, selector));
 	}
 
+	/**
+	 * jsではなく、CDPでクリックする
+	 */
+	public String click2(String selector) throws Exception {
+ 		if (!isVisibled(selector)) {
+ 			throw new Exception(String.format("selector(%s) cannot click", selector));
+ 		}
+
+ 		int nodeId = this.getNodeId(selector);
+
+ 		//DOM.getContentQuadsで指定ノードの4画座標+中心座標取得
+ 		Dom dom = new DomImpl();
+ 		String response = wss.send(dom.getContentQuads(1, nodeId, null, null));
+ 		DomQuad quad = new DomQuad();
+ 		quad.parse(jsonParse(response).get(FieldName.result).get(FieldName.quads));
+
+ 		Input input = new InputImpl();
+ 		input.dispatchMouseEvent_LClick(1, quad.centerX, quad.centerY)
+ 			.forEach(s -> wss.send(s));
+
+ 		return "";
+	}
+
 	//作成中
 	public String domEnable() {
 		ObjectMapper mapper = new ObjectMapper();
@@ -230,6 +260,8 @@ public class CdpControllerImpl implements CdpController{
 		return Integer.parseInt(node.get("result").get("nodeId").toString());
 	}
 
+	@Deprecated
+	@Override
 	public String fileUpload(String selector, String filePath) {
 		int nodeId;
 		try {
@@ -252,6 +284,46 @@ public class CdpControllerImpl implements CdpController{
 
 		root.set("params", params);
 		return this.sendJsonNode(mapper, root);
+	}
+
+	@Override
+	public String fileUpload2(String selector, String filePath) throws Exception {
+		this.pageEnable();
+
+		// ファイルダイアログイベントをキャッチできるようにする
+		Page page = new PageImpl();
+		wss.send(page.setInterceptFileChooserDialog(1, true));
+
+		// 要素クリック
+		this.click2(selector);
+
+		try {
+		// ダイアログ表示待ち
+		FileChooserOpend response = null;
+			for(int cnt = 0; cnt < 10; cnt ++) {
+				JsonNode json = EventResource.getInstance()
+									.getData(PageEvents.fileChooserOpened);
+				response = new FileChooserOpend();
+				response.parse(json);
+
+				if(response.getBackendNodeId() != null) {
+					break;
+				}
+				this.waitForTimeout(SLEEP_ONE_MILTIME);
+			 }
+
+			// ダイアログ情報取れない場合は終了
+			if(response.getBackendNodeId() == null) {
+				throw new Exception(PageEvents.fileChooserOpened + "is not found");
+			}
+
+			// ファイルアップロード
+			Dom dom = new DomImpl();
+			return wss.send(dom.setFileInputFiles(1, filePath, null, response.getBackendNodeId(), null));
+		} finally {
+			//キャッチのまま残していると画面操作でダイアログ出てこなくなるので落とす
+			wss.send(page.setInterceptFileChooserDialog(1, false));
+		}
 	}
 
 	public void waitForSelector(String selector, int waitingMilsec) throws TimeoutException {

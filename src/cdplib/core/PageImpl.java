@@ -42,4 +42,17 @@ public class PageImpl implements Page{
 	public String onJavascriptDialogOpening() {
 		return "";
 	}
+
+	@Override
+	public String setInterceptFileChooserDialog(int id, boolean enabled) {
+		CdpJsonCreator creator = new CdpJsonCreator(id, PageMethods.setInterceptFileChooserDialog);
+		creator.addParam(FieldName.enabled, enabled);
+		return creator.getJson();
+	}
+
+	@Override
+	public String onFileChooserOpened() {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
 }

@@ -112,9 +112,26 @@ public class Main {
 			return false;
 		}
 
+		// click [selector]
+		if (text.startsWith("click2 ")) {
+			try {
+				controller.click2(params[1]);
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
+			return false;
+		}
+
 		// upload [selector] [filePath]
 		if (text.startsWith("upload ")) {
-			controller.fileUpload(params[1], params[2]);
+			try {
+//				controller.fileUpload(params[1], params[2]);
+				controller.fileUpload2(params[1], params[2]);
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
 			return false;
 		}
 

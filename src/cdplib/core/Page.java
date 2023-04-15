@@ -11,6 +11,8 @@ public interface Page {
 	public String captureScreenshot(int id);
 	public String getLayoutMetrics(int id);
 	public String handleJavaScriptDialog(int id, boolean accept, String promptText);
+	public String setInterceptFileChooserDialog(int id, boolean enabled);
 
 	public String onJavascriptDialogOpening();
+	public String onFileChooserOpened();
 }

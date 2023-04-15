@@ -48,6 +48,7 @@ public class EventResource {
 		//処理対象イベント登録
 		eventList.add(new Event(PageEvents.javascriptDialogOpening, DataMethod.Create, PageEvents.javascriptDialogOpening));
 		eventList.add(new Event(PageEvents.javascriptDialogClosed, DataMethod.Delete, PageEvents.javascriptDialogOpening));
+		eventList.add(new Event(PageEvents.fileChooserOpened, DataMethod.Create, PageEvents.fileChooserOpened));
 
 		//データ領域用意
 		for(Event e : eventList) {
@@ -114,6 +115,9 @@ public class EventResource {
 		if (!dataMap.containsKey(eventName)) {
 			return null;
 		}
-		return dataMap.get(eventName);
+
+		JsonNode ret = dataMap.get(eventName);
+		dataMap.put(eventName, null);
+		return ret;
 	}
 }
